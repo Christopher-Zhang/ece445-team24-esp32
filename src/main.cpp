@@ -31,17 +31,27 @@
 #error Bluetooth not enabled: Run `make menuconfig`
 #endif
 
+//globals
+float threshold = 0; 
+
+//.h 
+void belay();
+void stop(int lower_flag);
+void lower();
+void checkFeedback();
+
 // BLE instance
 BLEServer *pServer;
 BLEService *pService;
 BLECharacteristic *pCharacteristic;
+
 
 class BelayCharacteristicCallbacks: public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic *pCharacteristic) {
     std::string value = pCharacteristic->getValue();
     if(value.length() > 0) {
       Serial.println("________");
-      Serial.print("New value: ");
+      Serial.print("New value: "); 
       for(int i = 0; i < value.length(); i++) {
         Serial.print(value[i]);
       }
@@ -60,13 +70,97 @@ class BelayCharacteristicCallbacks: public BLECharacteristicCallbacks {
     if(value == "off2") {
       digitalWrite(GPIO_NUM_4, LOW);
     }
+    if(value == "belay") {
+      belay();
+    }
+    if(value == "stop") {
+      int lower_flag = 0;
+      stop(lower_flag);
+    }
+    if(value == "lower") {
+      int lower_flag = 1;
+      stop(lower_flag);
+    }
   }
 };
+
+/*
+in the belay state, turn on the green LED
+*/
+void belay() {
+  Serial.println("Entered the belaying state!");
+  digitalWrite(GPIO_NUM_0, LOW); 
+  digitalWrite(BUILTIN_LED, LOW);
+  digitalWrite(GPIO_NUM_4, HIGH); //figure out which pin we want later
+  Serial.print("Current button value:");
+  Serial.println(digitalRead(GPIO_NUM_23));
+  //PWM CONTROL IS HERE (SET THE VOLTAGES AND PINS)
+
+}
+
+/*
+in the stopped state, turn on the red LED
+*/
+void stop(int lower_flag) {
+  Serial.println("Entered the stopped state!");
+  digitalWrite(GPIO_NUM_0, HIGH); 
+  digitalWrite(BUILTIN_LED, LOW);
+  digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
+  
+  //stop the motors
+
+  if(lower_flag) {
+    lower(); //we should only be entering the lower state after stopping
+  }
+}
+
+/*
+in the lower state, turn on the blue LED
+*/
+void lower() {
+  Serial.println("Entered the lower state!");
+  digitalWrite(BUILTIN_LED, HIGH); //blue
+  digitalWrite(GPIO_NUM_0, LOW); //red
+  digitalWrite(GPIO_NUM_4, LOW); //green
+  int done = 0;
+  while(!done) {
+    Serial.println("Lowering!!");
+    digitalWrite(BUILTIN_LED, HIGH);
+    digitalWrite(GPIO_NUM_0, LOW); 
+    digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
+    done = digitalRead(GPIO_NUM_23); //button press
+    Serial.println(done); 
+    //send a signal to servo to turn lever 
+    //maybe should light an LED to show it? 
+  }
+}
+
+/**
+ * @brief 
+ * might be a good idea to drop this function inside the loop
+ */
+void checkFeedback() { 
+  //check feedback voltage and either call 
+  // float voltage = float(digitalRead(GPIO_NUM_)); //some value we read from the feedback pin
+  float voltage = analogRead(LEFT_FB); //should enter teh stopped state 
+  Serial.println(voltage);
+  //currently threshold is just 0
+  if(voltage > threshold) {
+    stop(0); //just want to enter the regular stopped state
+  } else {
+    belay();
+  }
+}
+
 
 // init
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(GPIO_NUM_4, OUTPUT);
+  pinMode(GPIO_NUM_0, OUTPUT);
+  pinMode(GPIO_NUM_32, INPUT); //setting the pin modes here
+  pinMode(GPIO_NUM_25, OUTPUT);
+
   Serial.begin(115200);
   Serial.println("Device started, starting server...");
 
@@ -88,4 +182,7 @@ void setup() {
 
 void loop() {
   delay(2000);
+  digitalWrite(GPIO_NUM_25, HIGH); //I just want a random pin for power
+  checkFeedback();
+  // Serial.println(digitalRead(GPIO_NUM_2));
 }
