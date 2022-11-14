@@ -46,6 +46,8 @@ void lower() {
     digitalWrite(BUILTIN_LED, HIGH);
     digitalWrite(GPIO_NUM_0, LOW); 
     digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
+    //do the actual lowering (servo control)
+
     done = digitalRead(GPIO_NUM_23); //button press
     Serial.println(done); 
     //send a signal to servo to turn lever 
@@ -61,6 +63,7 @@ void checkFeedback() {
   //check feedback voltage and either call 
   // float voltage = float(digitalRead(GPIO_NUM_)); //some value we read from the feedback pin
   float voltage = analogRead(LEFT_FB); //should enter teh stopped state 
+  voltage = scale_number(voltage);
   Serial.println(voltage);
   //currently threshold is just 0
   if(voltage > threshold) {
@@ -68,4 +71,20 @@ void checkFeedback() {
   } else {
     belay();
   }
+}
+
+/**
+ * @brief 
+ * Analog pin returns between 0 and 4095, use this function to scale between 0 and 3.3V.
+ * Note the pin curve tapers from 0 to 0.1V and 3.2 to 3.3V (the readings aren't super accurate)
+ * @param voltage 
+ * @return float 
+ */
+float scale_number(float voltage) {
+  float old_min = 0;
+  float old_max = 4095;
+  float new_min = 0;
+  float new_max = 3.3;
+  voltage =  (new_max - new_min) * (voltage - old_min) / (old_max - old_min) + new_min;
+  return voltage;
 }
