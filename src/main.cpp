@@ -30,6 +30,11 @@ void setup() {
   pinMode(LEFT_D1, OUTPUT);
 
 
+  // pinMode(GPIO_NUM_22, OUTPUT);
+  // pinMode(GPIO_NUM_1, OUTPUT);
+  // pinMode(GPIO_NUM_3, OUTPUT);
+  // pinMode(GPIO_NUM_21, OUTPUT);
+
   Serial.begin(115200);
   while(!Serial){
     
@@ -83,4 +88,17 @@ void loop() {
   // digitalWrite(GPIO_NUM_25, HIGH); //I just want a random pin for power
   // checkFeedback();
   // Serial.println(digitalRead(GPIO_NUM_2));
+  // digitalWrite(MOTOR1_PIN1, HIGH);
+  // digitalWrite(MOTOR1_PIN2, LOW);
+
+  // digitalWrite(MOTOR2_PIN1, HIGH);
+  // digitalWrite(MOTOR2_PIN2, LOW);
+  // delay(1000);
+
+  // digitalWrite(MOTOR1_PIN1, LOW);
+  // digitalWrite(MOTOR1_PIN2, HIGH);
+
+  // digitalWrite(MOTOR2_PIN1, LOW);
+  // digitalWrite(MOTOR2_PIN2, HIGH);
+  // delay(1000);
 }
