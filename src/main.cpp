@@ -20,13 +20,20 @@ BLECharacteristic *pCharacteristic;
 
 // init
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(GPIO_NUM_4, OUTPUT);
-  pinMode(GPIO_NUM_0, OUTPUT);
-  pinMode(GPIO_NUM_32, INPUT); //setting the pin modes here
-  pinMode(GPIO_NUM_25, OUTPUT);
+  // pinMode(LED_BUILTIN, OUTPUT);
+  // pinMode(GPIO_NUM_4, OUTPUT);
+  // pinMode(GPIO_NUM_0, OUTPUT);
+  // pinMode(GPIO_NUM_32, INPUT); //setting the pin modes here
+  // pinMode(GPIO_NUM_25, OUTPUT);
+  pinMode(LEFT_IN1, OUTPUT);
+  pinMode(RIGHT_IN1, OUTPUT);
+  pinMode(LEFT_D1, OUTPUT);
+
 
   Serial.begin(115200);
+  while(!Serial){
+    
+  }
   Serial.println("Device started, starting server...");
 
   BLEDevice::init(DEVICE_NAME);
@@ -51,11 +58,29 @@ void setup() {
   advertisingData.setName(DEVICE_NAME);
   pAdvertising->setAdvertisementData(advertisingData);
   pAdvertising->start();
+  digitalWrite(LEFT_IN1, HIGH);
+  digitalWrite(RIGHT_IN1, HIGH);
+  digitalWrite(LEFT_D1, LOW);
 }
 
 void loop() {
   delay(1000);
-  digitalWrite(GPIO_NUM_25, HIGH); //I just want a random pin for power
-  checkFeedback();
+  switch(state) {
+    case STOP_STATE:
+      pCharacteristic->setValue("stop");
+      break;
+    case LOWER_STATE:
+      pCharacteristic->setValue("lower");
+      break;
+    case CLIMB_STATE:
+      pCharacteristic->setValue("climb");
+      break;
+    default:
+      pCharacteristic->setValue("unknown");
+    pCharacteristic->notify();
+  }
+  // pCharacteristic->setValue()
+  // digitalWrite(GPIO_NUM_25, HIGH); //I just want a random pin for power
+  // checkFeedback();
   // Serial.println(digitalRead(GPIO_NUM_2));
 }

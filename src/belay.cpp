@@ -7,12 +7,15 @@ in the belay state, turn on the green LED
 */
 void belay() {
   Serial.println("Entered the belaying state!");
-  digitalWrite(GPIO_NUM_0, LOW); 
-  digitalWrite(BUILTIN_LED, LOW);
-  digitalWrite(GPIO_NUM_4, HIGH); //figure out which pin we want later
-  Serial.print("Current button value:");
-  Serial.println(digitalRead(GPIO_NUM_23));
+  state = CLIMB_STATE;
+  // digitalWrite(GPIO_NUM_0, LOW); 
+  // digitalWrite(BUILTIN_LED, LOW);
+  // digitalWrite(GPIO_NUM_4, HIGH); //figure out which pin we want later
+  // Serial.print("Current button value:");
+  // Serial.println(digitalRead(GPIO_NUM_23));
   //PWM CONTROL IS HERE (SET THE VOLTAGES AND PINS)
+
+  // SerialBT.println("Belay state " + digitalRead(GPIO_NUM_23));
 
 }
 
@@ -21,15 +24,17 @@ in the stopped state, turn on the red LED
 */
 void stop(int lower_flag) {
   Serial.println("Entered the stopped state!");
-  digitalWrite(GPIO_NUM_0, HIGH); 
-  digitalWrite(BUILTIN_LED, LOW);
-  digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
+  state = STOP_STATE;
+  // digitalWrite(GPIO_NUM_0, HIGH); 
+  // digitalWrite(BUILTIN_LED, LOW);
+  // digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
   
   //stop the motors
 
   if(lower_flag) {
     lower(); //we should only be entering the lower state after stopping
   }
+  // SerialBT.println("Belay state " + digitalRead(GPIO_NUM_23));
 }
 
 /*
@@ -37,21 +42,23 @@ in the lower state, turn on the blue LED
 */
 void lower() {
   Serial.println("Entered the lower state!");
-  digitalWrite(BUILTIN_LED, HIGH); //blue
-  digitalWrite(GPIO_NUM_0, LOW); //red
-  digitalWrite(GPIO_NUM_4, LOW); //green
-  int done = 0;
+  state = LOWER_STATE;
+  // digitalWrite(BUILTIN_LED, HIGH); //blue
+  // digitalWrite(GPIO_NUM_0, LOW); //red
+  // digitalWrite(GPIO_NUM_4, LOW); //green
+  int done = 1;
   while(!done) {
     Serial.println("Lowering!!");
-    digitalWrite(BUILTIN_LED, HIGH);
-    digitalWrite(GPIO_NUM_0, LOW); 
-    digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
+    // digitalWrite(BUILTIN_LED, HIGH);
+    // digitalWrite(GPIO_NUM_0, LOW); 
+    // digitalWrite(GPIO_NUM_4, LOW); //figure out which pin we want later
     //do the actual lowering (servo control)
 
-    done = digitalRead(GPIO_NUM_23); //button press
+    // done = digitalRead(GPIO_NUM_23); //button press
     Serial.println(done); 
     //send a signal to servo to turn lever 
-    //maybe should light an LED to show it? 
+
+    // SerialBT.println("Belay state " + digitalRead(GPIO_NUM_23));
   }
 }
 
@@ -88,3 +95,15 @@ float scale_number(float voltage) {
   voltage =  (new_max - new_min) * (voltage - old_min) / (old_max - old_min) + new_min;
   return voltage;
 }
+
+float send_to_phone() {
+  float previous_state = 0;
+  float current_state = 0;
+  float next_state = 0;
+
+  return 0.;
+}
+
+// digiitalWrite(GPIO_NUM_12, HIGH);
+// digitalWrite(GPIO_NUM_13, HIGH);
+// digitalWrite(GPIO_NUM_14, HIGH);
